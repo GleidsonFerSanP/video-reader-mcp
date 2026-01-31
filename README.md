@@ -7,7 +7,9 @@ An MCP (Model Context Protocol) server that enables AI models to read and analyz
 The easiest way to use this MCP server is via the **VS Code Extension**:
 
 1. **Install the extension**:
-   ```bash
+   
+
+```bash
    cd extension
    npm install
    npm run package
@@ -17,15 +19,17 @@ The easiest way to use this MCP server is via the **VS Code Extension**:
 2. **Restart VS Code** - The MCP server auto-configures for GitHub Copilot Chat!
 
 3. **Start analyzing videos** in Copilot Chat:
-   ```
+   
+
+```
    Analyze this video: /path/to/video.mp4
    ```
 
 📦 **Extension Features**:
-- ✅ Auto-configures MCP server for GitHub Copilot
-- ✅ No manual configuration needed
-- ✅ Commands: Configure, Restart, Status, View Docs
-- ✅ Works on macOS, Windows, and Linux
+* ✅ Auto-configures MCP server for GitHub Copilot
+* ✅ No manual configuration needed
+* ✅ Commands: Configure, Restart, Status, View Docs
+* ✅ Works on macOS, Windows, and Linux
 
 ---
 

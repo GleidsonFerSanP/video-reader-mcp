@@ -4,6 +4,7 @@
     "description": "MCP server for reading and analyzing video files with Progressive Context Enrichment - Enables AI models to progressively analyze videos in GitHub Copilot",
     "version": "1.0.0",
     "publisher": "GleidsonFerSanP",
+    "icon": "resources/icon.png",
     "engines": {
         "vscode": "^1.85.0"
     },

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#1e1e2e"/>
+  
+  <!-- Video play button -->
+  <path d="M50 40 L90 64 L50 88 Z" fill="#89b4fa"/>
+  
+  <!-- Film strip decoration -->
+  <rect x="20" y="30" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="20" y="45" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="20" y="60" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="20" y="75" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="20" y="90" width="8" height="8" rx="1" fill="#cba6f7"/>
+  
+  <rect x="100" y="30" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="100" y="45" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="100" y="60" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="100" y="75" width="8" height="8" rx="1" fill="#cba6f7"/>
+  <rect x="100" y="90" width="8" height="8" rx="1" fill="#cba6f7"/>
+  
+  <!-- AI sparkle -->
+  <circle cx="95" cy="35" r="8" fill="#f9e2af"/>
+  <path d="M95 28 L96 33 L101 34 L96 35 L95 40 L94 35 L89 34 L94 33 Z" fill="#1e1e2e"/>
+</svg>

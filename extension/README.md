@@ -6,10 +6,10 @@ A VS Code extension that enables AI models (GitHub Copilot) to read and analyze 
 
 ## Features
 
-- 🎬 **Video Analysis**: Extract metadata, frames, and audio from video files
-- 🚀 **Auto-configuration**: Automatically configures MCP server for GitHub Copilot Chat
-- 📊 **Progressive Context**: Start with lightweight overviews, fetch details on demand
-- 🎯 **Token Efficient**: Minimizes context consumption while maximizing utility
+* 🎬 **Video Analysis**: Extract metadata, frames, and audio from video files
+* 🚀 **Auto-configuration**: Automatically configures MCP server for GitHub Copilot Chat
+* 📊 **Progressive Context**: Start with lightweight overviews, fetch details on demand
+* 🎯 **Token Efficient**: Minimizes context consumption while maximizing utility
 
 ## Quick Start
 
@@ -20,6 +20,7 @@ A VS Code extension that enables AI models (GitHub Copilot) to read and analyze 
 ### Example Usage
 
 In GitHub Copilot Chat:
+
 ```
 @workspace Analyze this video: /path/to/video.mp4
 ```
@@ -43,10 +44,10 @@ The AI will use progressive context enrichment:
 
 ## Commands
 
-- **Video Reader MCP: Configure** - Update MCP server configuration
-- **Video Reader MCP: Restart** - Restart the MCP server
-- **Video Reader MCP: Status** - Check server status and available tools
-- **Video Reader MCP: Open Documentation** - View full documentation
+* **Video Reader MCP: Configure** - Update MCP server configuration
+* **Video Reader MCP: Restart** - Restart the MCP server
+* **Video Reader MCP: Status** - Check server status and available tools
+* **Video Reader MCP: Open Documentation** - View full documentation
 
 ## Settings
 
@@ -59,9 +60,9 @@ The AI will use progressive context enrichment:
 
 ## Requirements
 
-- VS Code 1.85.0 or higher
-- GitHub Copilot Chat extension
-- No external FFmpeg installation required (bundled)
+* VS Code 1.85.0 or higher
+* GitHub Copilot Chat extension
+* No external FFmpeg installation required (bundled)
 
 ## Progressive Context Enrichment
 
