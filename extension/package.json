@@ -1,0 +1,119 @@
+{
+    "name": "video-reader-mcp",
+    "displayName": "Video Reader MCP",
+    "description": "MCP server for reading and analyzing video files with Progressive Context Enrichment - Enables AI models to progressively analyze videos in GitHub Copilot",
+    "version": "1.0.0",
+    "publisher": "GleidsonFerSanP",
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [
+        "AI",
+        "Machine Learning",
+        "Other"
+    ],
+    "keywords": [
+        "mcp",
+        "model context protocol",
+        "video",
+        "ffmpeg",
+        "ai assistant",
+        "copilot",
+        "video analysis",
+        "progressive context",
+        "context engineering"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "mcpServerDefinitionProviders": [
+            {
+                "id": "video-reader-mcp",
+                "label": "Video Reader MCP"
+            }
+        ],
+        "commands": [
+            {
+                "command": "video-reader-mcp.configure",
+                "title": "Configure Video Reader MCP",
+                "category": "Video Reader MCP"
+            },
+            {
+                "command": "video-reader-mcp.restart",
+                "title": "Restart MCP Server",
+                "category": "Video Reader MCP"
+            },
+            {
+                "command": "video-reader-mcp.viewDocs",
+                "title": "Open Documentation",
+                "category": "Video Reader MCP"
+            },
+            {
+                "command": "video-reader-mcp.status",
+                "title": "Check MCP Server Status",
+                "category": "Video Reader MCP"
+            }
+        ],
+        "configuration": {
+            "title": "Video Reader MCP",
+            "properties": {
+                "videoReaderMcp.autoStart": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically start MCP server on VS Code startup"
+                },
+                "videoReaderMcp.logLevel": {
+                    "type": "string",
+                    "enum": [
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                    ],
+                    "default": "info",
+                    "description": "Log level for MCP server"
+                },
+                "videoReaderMcp.defaultFrameQuality": {
+                    "type": "number",
+                    "default": 80,
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Default JPEG quality for extracted frames (1-100)"
+                },
+                "videoReaderMcp.maxFrameWidth": {
+                    "type": "number",
+                    "default": 1920,
+                    "description": "Maximum width for extracted frames in pixels"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run build",
+        "build": "node scripts/build.js",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile",
+        "package": "npm run build && vsce package",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/vscode": "^1.85.0",
+        "@vscode/vsce": "^2.22.0",
+        "typescript": "^5.3.0"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.4"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GleidsonFerSanP/video-reader-mcp.git"
+    },
+    "bugs": {
+        "url": "https://github.com/GleidsonFerSanP/video-reader-mcp/issues"
+    },
+    "license": "MIT"
+}

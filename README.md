@@ -2,6 +2,33 @@
 
 An MCP (Model Context Protocol) server that enables AI models to read and analyze videos using **Progressive Context Enrichment** principles.
 
+## 🚀 Quick Start: VS Code Extension
+
+The easiest way to use this MCP server is via the **VS Code Extension**:
+
+1. **Install the extension**:
+   ```bash
+   cd extension
+   npm install
+   npm run package
+   code --install-extension video-reader-mcp-1.0.0.vsix
+   ```
+
+2. **Restart VS Code** - The MCP server auto-configures for GitHub Copilot Chat!
+
+3. **Start analyzing videos** in Copilot Chat:
+   ```
+   Analyze this video: /path/to/video.mp4
+   ```
+
+📦 **Extension Features**:
+- ✅ Auto-configures MCP server for GitHub Copilot
+- ✅ No manual configuration needed
+- ✅ Commands: Configure, Restart, Status, View Docs
+- ✅ Works on macOS, Windows, and Linux
+
+---
+
 ## 🎯 Key Features
 
 * **Progressive Context Enrichment**: Start light, fetch details on demand

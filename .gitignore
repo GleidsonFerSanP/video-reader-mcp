@@ -10,3 +10,8 @@ dist/
 *.mkv
 *.webm
 temp/
+# Extension build artifacts
+extension/dist/
+extension/mcp-server/
+extension/node_modules/
+extension/*.vsix
