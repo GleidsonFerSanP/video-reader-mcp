@@ -1,0 +1,39 @@
+{
+    "name": "mcp-video-reader",
+    "version": "2.0.0",
+    "description": "MCP server for reading and analyzing video files with Progressive Context Enrichment",
+    "type": "module",
+    "main": "build/index.js",
+    "bin": {
+        "mcp-video-reader": "./build/index.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "start": "node build/index.js",
+        "prepare": "npm run build"
+    },
+    "keywords": [
+        "mcp",
+        "video",
+        "ffmpeg",
+        "media",
+        "ai",
+        "context-engineering",
+        "progressive-context"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@ffmpeg-installer/ffmpeg": "^1.1.0",
+        "@ffprobe-installer/ffprobe": "^2.1.2",
+        "@modelcontextprotocol/sdk": "^1.0.4",
+        "fluent-ffmpeg": "^2.1.3",
+        "sharp": "^0.33.5"
+    },
+    "devDependencies": {
+        "@types/fluent-ffmpeg": "^2.1.26",
+        "@types/node": "^22.10.2",
+        "typescript": "^5.7.2"
+    }
+}
