@@ -168,6 +168,33 @@ Se você usar a extensão em uma plataforma diferente, pode precisar reinstalar 
 - ✅ Corrigido: FFmpeg/FFprobe binaries não incluídos
 - ✅ Adicionado: Script de atualização automática
 - ✅ Adicionado: Documentação de troubleshooting
+- ⚠️  **Multiplataforma**: Build atual funciona apenas em **macOS ARM64**  
+  Para outras plataformas, veja [MULTI-PLATFORM.md](MULTI-PLATFORM.md)
+
+---
+
+## 🌍 Suporte Multiplataforma
+
+**IMPORTANTE**: Esta extensão contém binários nativos (FFmpeg, FFprobe, Sharp) que são **específicos para cada plataforma**.
+
+### Build Atual
+- **Plataforma**: macOS Apple Silicon (darwin-arm64)
+- **Tamanho**: ~42MB
+- **Funciona em**: macOS M1/M2/M3
+- **Não funciona em**: Windows, Linux, macOS Intel
+
+### Para Outras Plataformas
+
+Se você usa **Windows, Linux ou macOS Intel**, compile a extensão localmente:
+
+```bash
+git clone https://github.com/GleidsonFerSanP/video-reader-mcp.git
+cd video-reader-mcp/extension
+npm install && npm run build && npm run package
+code --install-extension video-reader-mcp-2.0.0.vsix
+```
+
+**Documentação completa**: [MULTI-PLATFORM.md](MULTI-PLATFORM.md)
 
 ---
 

@@ -70,6 +70,7 @@ function build() {
 
   // Step 4: Create package.json for the bundled server
   log("Creating mcp-server package.json...");
+  
   const serverPackageJson = {
     name: "video-reader-mcp-server",
     version: "1.0.0",
@@ -81,7 +82,7 @@ function build() {
       "@ffmpeg-installer/ffmpeg": "^1.1.0",
       "@ffprobe-installer/ffprobe": "^2.1.2",
       "fluent-ffmpeg": "^2.1.3",
-      "openai": "^4.76.0",
+      openai: "^4.76.0",
       sharp: "^0.33.5",
     },
   };
@@ -93,11 +94,17 @@ function build() {
 
   // Step 5: Install MCP server dependencies
   log("Installing MCP server dependencies...");
+  log(
+    "ℹ️  Installing binaries for current platform. For multi-platform builds, see TROUBLESHOOTING.md",
+  );
+  
   try {
     execSync("npm install --omit=dev", {
       cwd: MCP_SERVER_DIR,
       stdio: "inherit",
     });
+    
+    log("✅ Dependencies installed successfully!");
   } catch (e) {
     errorExit("Failed to install MCP server dependencies: " + e.message);
   }
