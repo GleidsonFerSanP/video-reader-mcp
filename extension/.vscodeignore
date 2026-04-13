@@ -7,5 +7,6 @@ scripts/**
 tsconfig.json
 **/tsconfig.json
 **/*.ts
+.env
 !dist/**
 !mcp-server/**

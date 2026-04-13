@@ -148,6 +148,20 @@ TIER 2: Progressive Fetch (on demand)
 ├── get_frames_batch     ~50K tokens   Max 5 frames
 └── extract_audio        ~50 tokens    Returns file path
 
+TIER 2.5: Smart Analysis (scene-aware)
+├── detect_scenes        ~200 tokens   Find scene change timestamps
+├── get_scene_frames     ~10-50K tokens Frames at scene boundaries
+├── get_video_chunks     ~150 tokens   Plan chunk analysis
+└── analyze_chunk        ~15-25K tokens Single chunk + optional audio
+
+TIER 2.6: Stream Analysis (progressive watching)
+├── stream_start         ~15K tokens   Initialize streaming analysis
+├── stream_next          ~15K tokens   Continue to next segment
+└── stream_status        ~100 tokens   Check progress without advancing
+
+TIER 2.7: Audio Transcription (requires OPENAI_API_KEY)
+└── transcribe_audio     ~100+ tokens  Transcribe with Whisper API
+
 TIER 3: Comprehensive (avoid)
 └── analyze_video_full   ~100K+ tokens Only for <1 min videos
 ```

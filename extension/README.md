@@ -4,6 +4,13 @@
 
 A VS Code extension that enables AI models (GitHub Copilot) to read and analyze video files using **Progressive Context Enrichment** principles.
 
+## 🆕 What's New in v2.0.0
+
+* 🎬 **Scene Detection**: Automatically find scene changes and extract representative frames
+* 📦 **Chunk Analysis**: Break long videos into analyzable chunks (~30s each)
+* 🎥 **Stream Analysis**: Simulate "watching" videos progressively with memory
+* 🎤 **Whisper Transcription**: Transcribe audio using OpenAI Whisper API (requires `OPENAI_API_KEY`)
+
 ## Features
 
 * 🎬 **Video Analysis**: Extract metadata, frames, and audio from video files
@@ -40,7 +47,17 @@ The AI will use progressive context enrichment:
 | `get_frame` | Extract a single frame at timestamp | ~10K tokens |
 | `get_frames_batch` | Extract multiple frames (max 5) | ~50K tokens |
 | `extract_audio` | Extract audio track | ~50 tokens |
+| `detect_scenes` | Find scene change timestamps | ~200 tokens |
+| `get_scene_frames` | Extract frames at scene boundaries | ~10-50K tokens |
+| `get_video_chunks` | Plan chunk-based analysis | ~150 tokens |
+| `analyze_chunk` | Analyze single chunk with frames + audio | ~15-25K tokens |
+| `stream_start` | Start streaming analysis session | ~15K tokens |
+| `stream_next` | Continue to next video segment | ~15K tokens |
+| `stream_status` | Check streaming progress | ~100 tokens |
+| `transcribe_audio` | Transcribe with Whisper API* | ~100+ tokens |
 | `analyze_video_full` | Full video analysis (use sparingly) | ~100K+ tokens |
+
+\* Requires `OPENAI_API_KEY` environment variable
 
 ## Commands
 
@@ -58,11 +75,25 @@ The AI will use progressive context enrichment:
 | `videoReaderMcp.defaultFrameQuality` | `80` | JPEG quality for extracted frames (1-100) |
 | `videoReaderMcp.maxFrameWidth` | `1920` | Maximum width for extracted frames |
 
+## ⚙️ Configuration for Transcription
+
+To enable audio transcription with OpenAI Whisper, set the `OPENAI_API_KEY` environment variable:
+
+```json
+// In your settings.json or extension configuration
+{
+  "env": {
+    "OPENAI_API_KEY": "sk-your-api-key-here"
+  }
+}
+```
+
 ## Requirements
 
 * VS Code 1.85.0 or higher
 * GitHub Copilot Chat extension
 * No external FFmpeg installation required (bundled)
+* OpenAI API key (optional, for transcription)
 
 ## Progressive Context Enrichment
 

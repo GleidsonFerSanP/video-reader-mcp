@@ -162,7 +162,10 @@ function buildForPlatform(targetPlatform) {
   );
 
   // Add platform-specific metadata
-  const originalName = extensionPackage.name.replace(/-[a-z0-9]+-[a-z0-9]+$/, "");
+  const originalName = extensionPackage.name.replace(
+    /-[a-z0-9]+-[a-z0-9]+$/,
+    "",
+  );
   extensionPackage.name = `${originalName}-${targetPlatform}`;
   extensionPackage.displayName = `Video Reader MCP (${targetPlatform})`;
 

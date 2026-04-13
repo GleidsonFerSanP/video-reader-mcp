@@ -231,6 +231,243 @@ Only for short videos (<1 min). Otherwise use: get_video_overview → get_frame 
       required: ['videoPath'],
     },
   },
+
+  // ---------------------------------------------------------------------------
+  // TIER 2.5: SMART ANALYSIS TOOLS (Scene detection, chunks, streaming)
+  // ---------------------------------------------------------------------------
+  {
+    name: 'detect_scenes',
+    description: `Detect scene changes in video. Returns timestamps where significant visual changes occur. ~200 tokens.
+
+Use to find key moments without extracting all frames. Then use get_scene_frames for visual data.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        threshold: {
+          type: 'number',
+          description: 'Detection sensitivity 0.0-1.0 (lower = more scenes). Default: 0.3',
+          default: 0.3,
+        },
+        maxScenes: {
+          type: 'number',
+          description: 'Maximum scenes to detect (default: 20)',
+          default: 20,
+        },
+        minSceneDuration: {
+          type: 'number',
+          description: 'Minimum scene duration in seconds (default: 1)',
+          default: 1,
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+  {
+    name: 'get_scene_frames',
+    description: `Extract frames at detected scene changes. Smart alternative to evenly-spaced frames. ~10-50K tokens.
+
+Better than get_frames_batch for videos with varying content - captures actual visual changes.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        threshold: {
+          type: 'number',
+          description: 'Scene detection sensitivity (default: 0.3)',
+          default: 0.3,
+        },
+        maxScenes: {
+          type: 'number',
+          description: 'Maximum scenes/frames (default: 10)',
+          default: 10,
+        },
+        maxWidth: {
+          type: 'number',
+          description: 'Max width pixels (default: 1920)',
+          default: 1920,
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+  {
+    name: 'get_video_chunks',
+    description: `Divide video into chunks for progressive analysis. Returns chunk metadata without extracting content.
+
+Use for long videos: get chunks list, then analyze_chunk for each segment progressively.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        chunkDuration: {
+          type: 'number',
+          description: 'Duration of each chunk in seconds (default: 30)',
+          default: 30,
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+  {
+    name: 'analyze_chunk',
+    description: `Analyze a specific chunk of the video. Returns keyframe + optional audio. ~15-25K tokens.
+
+Progressive analysis workflow: get_video_chunks → analyze_chunk(0) → analyze_chunk(1) → ...`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        chunkIndex: {
+          type: 'number',
+          description: 'Chunk index to analyze (0-based)',
+        },
+        chunkDuration: {
+          type: 'number',
+          description: 'Chunk duration in seconds (default: 30)',
+          default: 30,
+        },
+        includeAudio: {
+          type: 'boolean',
+          description: 'Extract audio segment for this chunk',
+          default: false,
+        },
+      },
+      required: ['videoPath', 'chunkIndex'],
+    },
+  },
+
+  // ---------------------------------------------------------------------------
+  // TIER 2.6: STREAM ANALYSIS - Progressive watching simulation
+  // ---------------------------------------------------------------------------
+  {
+    name: 'stream_start',
+    description: `Start streaming analysis of a video. Simulates progressively watching a video.
+
+Best for long videos. Returns first segment, then use stream_next to continue. State is maintained.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        stepDuration: {
+          type: 'number',
+          description: 'Seconds per step (default: 30)',
+          default: 30,
+        },
+        includeAudio: {
+          type: 'boolean',
+          description: 'Include audio extraction per step',
+          default: false,
+        },
+        useSceneDetection: {
+          type: 'boolean',
+          description: 'Use smart scene detection for frame selection',
+          default: true,
+        },
+        startPosition: {
+          type: 'number',
+          description: 'Start position in seconds (default: 0)',
+          default: 0,
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+  {
+    name: 'stream_next',
+    description: `Continue streaming analysis. Advances to next segment.
+
+Returns next frame + position + accumulated context. Call repeatedly until isComplete is true.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video (must match stream_start)',
+        },
+        stepDuration: {
+          type: 'number',
+          description: 'Seconds to advance (default: 30)',
+          default: 30,
+        },
+        includeAudio: {
+          type: 'boolean',
+          description: 'Include audio extraction',
+          default: false,
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+  {
+    name: 'stream_status',
+    description: `Get current streaming analysis status without advancing position.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
+
+  // ---------------------------------------------------------------------------
+  // TIER 2.7: AUDIO TRANSCRIPTION
+  // ---------------------------------------------------------------------------
+  {
+    name: 'transcribe_audio',
+    description: `Transcribe audio from video using OpenAI Whisper API. ~100 tokens + transcript.
+
+REQUIRES: Set OPENAI_API_KEY environment variable.
+Returns full transcript with timed segments for correlation with video. 
+Generates VTT/SRT subtitles automatically.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        videoPath: {
+          type: 'string',
+          description: 'Absolute path to video',
+        },
+        subtitleFormat: {
+          type: 'string',
+          enum: ['vtt', 'srt', 'none'],
+          description: 'Output subtitle format (default: vtt)',
+          default: 'vtt',
+        },
+        startTime: {
+          type: 'number',
+          description: 'Start time in seconds (optional, for segments)',
+        },
+        endTime: {
+          type: 'number',
+          description: 'End time in seconds (optional, for segments)',
+        },
+        language: {
+          type: 'string',
+          description: 'Language code for better accuracy (e.g., "en", "pt", "es", "ja")',
+        },
+      },
+      required: ['videoPath'],
+    },
+  },
 ];
 
 // =============================================================================
@@ -240,7 +477,7 @@ Only for short videos (<1 min). Otherwise use: get_video_overview → get_frame 
 const server = new Server(
   {
     name: 'mcp-video-reader',
-    version: '2.0.0',
+    version: '3.0.0',
   },
   {
     capabilities: {
@@ -674,6 +911,510 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         return { content };
+      }
+
+      // -----------------------------------------------------------------------
+      // TIER 2.5: SMART ANALYSIS TOOLS
+      // -----------------------------------------------------------------------
+      case 'detect_scenes': {
+        const {
+          videoPath,
+          threshold = 0.3,
+          maxScenes = 20,
+          minSceneDuration = 1,
+        } = args as {
+          videoPath: string;
+          threshold?: number;
+          maxScenes?: number;
+          minSceneDuration?: number;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        const detection = await processor.detectScenes(videoPath, {
+          threshold,
+          maxScenes,
+          minSceneDuration,
+        });
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              totalScenes: detection.totalScenes,
+              threshold: detection.threshold,
+              scenes: detection.scenes.map(s => ({
+                index: s.index,
+                timeRange: `${processor.formatTimestamp(s.startTime)}-${processor.formatTimestamp(s.endTime)}`,
+                duration: `${s.duration.toFixed(1)}s`,
+                keyFrameTimestamp: s.keyFrameTimestamp,
+              })),
+              suggestedKeyframes: detection.suggestedKeyframes.map(f => ({
+                timestamp: f.timestamp,
+                timestampFormatted: f.timestampFormatted,
+                estimatedTokens: f.estimatedTokens,
+              })),
+              contextHints: detection.contextHints,
+              nextSteps: [
+                'Use get_scene_frames to extract frames at detected scene changes',
+                'Use get_frame with specific keyFrameTimestamp for individual scenes',
+              ],
+            }, null, 2),
+          }],
+        };
+      }
+
+      case 'get_scene_frames': {
+        const {
+          videoPath,
+          threshold = 0.3,
+          maxScenes = 10,
+          maxWidth = 1920,
+        } = args as {
+          videoPath: string;
+          threshold?: number;
+          maxScenes?: number;
+          maxWidth?: number;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        const result = await processor.extractSceneFrames(videoPath, {
+          threshold,
+          maxScenes,
+          maxWidth,
+          format: 'jpeg',
+        });
+
+        const content: Array<{ type: string; text?: string; data?: string; mimeType?: string }> = [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              scenesDetected: result.scenes.length,
+              scenes: result.scenes.map((s, i) => ({
+                index: s.index,
+                timeRange: `${processor.formatTimestamp(s.startTime)}-${processor.formatTimestamp(s.endTime)}`,
+                keyFrame: processor.formatTimestamp(s.keyFrameTimestamp),
+                resolution: result.frames[i]?.resolution,
+              })),
+            }, null, 2),
+          },
+        ];
+
+        // Add scene frames as images
+        for (const frame of result.frames) {
+          content.push({
+            type: 'image',
+            data: frame.base64,
+            mimeType: frame.mimeType,
+          });
+        }
+
+        return { content };
+      }
+
+      case 'get_video_chunks': {
+        const {
+          videoPath,
+          chunkDuration = 30,
+        } = args as {
+          videoPath: string;
+          chunkDuration?: number;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        const chunks = await processor.createChunks(videoPath, { chunkDuration });
+        const metadata = await processor.getMetadataSummary(videoPath);
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              video: {
+                description: metadata.humanDescription,
+                duration: metadata.durationFormatted,
+              },
+              totalChunks: chunks.length,
+              chunkDuration: `${chunkDuration}s`,
+              chunks: chunks.map(c => ({
+                index: c.index,
+                timeRange: c.timeRange,
+                duration: `${c.duration.toFixed(1)}s`,
+              })),
+              workflow: [
+                'Call analyze_chunk with chunkIndex=0 to start',
+                'Review the frame and audio (if enabled)',
+                'Continue with analyze_chunk for subsequent indices',
+                'Build understanding progressively',
+              ],
+            }, null, 2),
+          }],
+        };
+      }
+
+      case 'analyze_chunk': {
+        const {
+          videoPath,
+          chunkIndex,
+          chunkDuration = 30,
+          includeAudio = false,
+        } = args as {
+          videoPath: string;
+          chunkIndex: number;
+          chunkDuration?: number;
+          includeAudio?: boolean;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        try {
+          const result = await processor.analyzeChunk(videoPath, chunkIndex, {
+            chunkDuration,
+            includeAudio,
+          });
+
+          const content: Array<{ type: string; text?: string; data?: string; mimeType?: string }> = [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                chunk: {
+                  index: result.chunk.index,
+                  timeRange: result.chunk.timeRange,
+                  duration: `${result.chunk.duration.toFixed(1)}s`,
+                },
+                progress: result.progress,
+                frame: {
+                  timestamp: result.frame.timestamp,
+                  timestampFormatted: result.frame.timestampFormatted,
+                  resolution: result.frame.resolution,
+                },
+                audioSegmentPath: result.audioSegmentPath,
+                contextHints: result.contextHints,
+              }, null, 2),
+            },
+            {
+              type: 'image',
+              data: result.frame.base64,
+              mimeType: result.frame.mimeType,
+            },
+          ];
+
+          return { content };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+              }, null, 2),
+            }],
+          };
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // TIER 2.6: STREAM ANALYSIS
+      // -----------------------------------------------------------------------
+      case 'stream_start': {
+        const {
+          videoPath,
+          stepDuration = 30,
+          includeAudio = false,
+          useSceneDetection = true,
+          startPosition = 0,
+        } = args as {
+          videoPath: string;
+          stepDuration?: number;
+          includeAudio?: boolean;
+          useSceneDetection?: boolean;
+          startPosition?: number;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        // Initialize and get first step
+        await processor.initStreamAnalysis(videoPath, { startPosition });
+        const step = await processor.getStreamStep(videoPath, {
+          stepDuration,
+          includeAudio,
+          useSceneDetection,
+        });
+
+        const content: Array<{ type: string; text?: string; data?: string; mimeType?: string }> = [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              streamStarted: true,
+              position: step.position,
+              scenesInSegment: step.scenesInSegment?.length || 0,
+              state: {
+                analyzedChunks: step.state.analyzedChunks.length,
+                isComplete: step.state.isComplete,
+              },
+              contextHints: step.contextHints,
+            }, null, 2),
+          },
+          {
+            type: 'image',
+            data: step.frame.base64,
+            mimeType: step.frame.mimeType,
+          },
+        ];
+
+        return { content };
+      }
+
+      case 'stream_next': {
+        const {
+          videoPath,
+          stepDuration = 30,
+          includeAudio = false,
+        } = args as {
+          videoPath: string;
+          stepDuration?: number;
+          includeAudio?: boolean;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        const state = processor.getStreamState(videoPath);
+        if (!state) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: 'No active stream for this video. Use stream_start first.',
+                hint: 'Call stream_start to initialize streaming analysis.',
+              }, null, 2),
+            }],
+          };
+        }
+
+        if (state.isComplete) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                isComplete: true,
+                message: 'Stream analysis already complete.',
+                summary: {
+                  totalDuration: processor.formatTimestamp(state.totalDuration),
+                  chunksAnalyzed: state.analyzedChunks.length,
+                  observations: state.observations,
+                  keyEvents: state.keyEvents,
+                },
+              }, null, 2),
+            }],
+          };
+        }
+
+        const step = await processor.getStreamStep(videoPath, {
+          stepDuration,
+          includeAudio,
+        });
+
+        const content: Array<{ type: string; text?: string; data?: string; mimeType?: string }> = [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              position: step.position,
+              scenesInSegment: step.scenesInSegment?.length || 0,
+              state: {
+                analyzedChunks: step.state.analyzedChunks.length,
+                isComplete: step.state.isComplete,
+                observations: step.state.observations,
+                keyEvents: step.state.keyEvents,
+              },
+              contextHints: step.contextHints,
+            }, null, 2),
+          },
+          {
+            type: 'image',
+            data: step.frame.base64,
+            mimeType: step.frame.mimeType,
+          },
+        ];
+
+        return { content };
+      }
+
+      case 'stream_status': {
+        const { videoPath } = args as { videoPath: string };
+
+        const state = processor.getStreamState(videoPath);
+        if (!state) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: 'No active stream for this video.',
+                hint: 'Use stream_start to begin streaming analysis.',
+              }, null, 2),
+            }],
+          };
+        }
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              state: {
+                videoPath: state.videoPath,
+                currentPosition: processor.formatTimestamp(state.currentPosition),
+                totalDuration: processor.formatTimestamp(state.totalDuration),
+                percentComplete: Math.round((state.currentPosition / state.totalDuration) * 100),
+                chunksAnalyzed: state.analyzedChunks.length,
+                isComplete: state.isComplete,
+                observations: state.observations,
+                keyEvents: state.keyEvents,
+              },
+            }, null, 2),
+          }],
+        };
+      }
+
+      // -----------------------------------------------------------------------
+      // TIER 2.7: AUDIO TRANSCRIPTION
+      // -----------------------------------------------------------------------
+      case 'transcribe_audio': {
+        const {
+          videoPath,
+          subtitleFormat = 'vtt',
+          startTime,
+          endTime,
+          language,
+        } = args as {
+          videoPath: string;
+          subtitleFormat?: 'vtt' | 'srt' | 'none';
+          startTime?: number;
+          endTime?: number;
+          language?: string;
+        };
+
+        if (!await checkFile(videoPath)) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `File not found: ${videoPath}`,
+              }, null, 2),
+            }],
+          };
+        }
+
+        const metadata = await processor.getMetadata(videoPath);
+        if (!metadata.hasAudio) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: 'Video does not have an audio track.',
+              }, null, 2),
+            }],
+          };
+        }
+
+        const result = await processor.transcribeAudio(videoPath, {
+          subtitleFormat,
+          startTime,
+          endTime,
+          language,
+        });
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              audioDuration: `${result.audioDuration.toFixed(1)}s`,
+              estimatedTokens: result.estimatedTokens,
+              segment: startTime !== undefined ? {
+                startTime: processor.formatTimestamp(startTime),
+                endTime: processor.formatTimestamp(endTime || metadata.duration),
+              } : 'full',
+              contextHints: result.contextHints,
+              transcriptionGuide: {
+                usingWhisper: 'whisper audio.wav --language auto --output_format vtt',
+                usingOpenAI: 'Use OpenAI Whisper API with the extracted audio file',
+                usingLocal: 'Install whisper.cpp for local CPU-based transcription',
+              },
+            }, null, 2),
+          }],
+        };
       }
 
       default:

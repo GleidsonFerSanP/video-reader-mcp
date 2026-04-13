@@ -36,6 +36,10 @@ The easiest way to use this MCP server is via the **VS Code Extension**:
 ## 🎯 Key Features
 
 * **Progressive Context Enrichment**: Start light, fetch details on demand
+* **🆕 Scene Detection**: Automatically detect scene changes for smart frame extraction
+* **🆕 Chunk Analysis**: Divide videos into segments for progressive understanding
+* **🆕 Stream Analysis**: Simulate "watching" a video progressively with state management
+* **🆕 Audio Transcription Support**: Prepare audio for transcription services
 * **Token Efficient**: Optimized outputs to minimize context consumption
 * **Context Hints**: Guides AI behavior with actionable suggestions
 * **Universal Format Support**: Works with any video format (mp4, avi, mov, mkv, webm, etc.)
@@ -100,11 +104,16 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` :
   "mcpServers": {
     "video-reader": {
       "command": "node",
-      "args": ["/absolute/path/to/mcp-video-reader/build/index.js"]
+      "args": ["/absolute/path/to/mcp-video-reader/build/index.js"],
+      "env": {
+        "OPENAI_API_KEY": "sk-your-api-key-here"
+      }
     }
   }
 }
 ```
+
+> **Note:** The `OPENAI_API_KEY` is optional but required for `transcribe_audio` functionality.
 
 ## 🛠️ Tools Reference
 
@@ -206,6 +215,133 @@ analyze_video_full({
 })
 ```
 
+### 🆕 Tier 2.5: Smart Analysis Tools
+
+#### `detect_scenes`
+
+Detect scene changes without extracting frames. Returns timestamps where visual changes occur.
+
+```typescript
+// Returns: scene list with timestamps and suggested keyframes
+detect_scenes({
+  videoPath: "/path/to/video.mp4",
+  threshold: 0.3,       // 0.0-1.0 (lower = more scenes)
+  maxScenes: 20,
+  minSceneDuration: 1   // Minimum scene duration in seconds
+})
+```
+
+#### `get_scene_frames`
+
+Extract frames at detected scene changes - smarter than evenly-spaced frames.
+
+```typescript
+// Returns: frames at scene change points
+get_scene_frames({
+  videoPath: "/path/to/video.mp4",
+  threshold: 0.3,
+  maxScenes: 10,
+  maxWidth: 1920
+})
+```
+
+#### `get_video_chunks`
+
+Divide video into chunks for progressive analysis.
+
+```typescript
+// Returns: chunk metadata without extracting content
+get_video_chunks({
+  videoPath: "/path/to/video.mp4",
+  chunkDuration: 30     // seconds per chunk
+})
+```
+
+#### `analyze_chunk`
+
+Analyze a specific chunk with keyframe + optional audio.
+
+```typescript
+// Returns: frame + audio path for specific segment
+analyze_chunk({
+  videoPath: "/path/to/video.mp4",
+  chunkIndex: 0,        // 0-based index
+  chunkDuration: 30,
+  includeAudio: true
+})
+```
+
+### 🆕 Tier 2.6: Stream Analysis (Progressive Watching)
+
+#### `stream_start`
+
+Start streaming analysis - simulates watching a video progressively.
+
+```typescript
+// Returns: first segment + state initialization
+stream_start({
+  videoPath: "/path/to/video.mp4",
+  stepDuration: 30,     // seconds per step
+  includeAudio: false,
+  useSceneDetection: true,
+  startPosition: 0
+})
+```
+
+#### `stream_next`
+
+Continue streaming - advances to next segment.
+
+```typescript
+// Returns: next frame + position + accumulated context
+stream_next({
+  videoPath: "/path/to/video.mp4",
+  stepDuration: 30,
+  includeAudio: false
+})
+```
+
+#### `stream_status`
+
+Check streaming progress without advancing.
+
+```typescript
+// Returns: current state, observations, key events
+stream_status({ videoPath: "/path/to/video.mp4" })
+```
+
+### 🆕 Tier 2.7: Audio Transcription
+
+#### `transcribe_audio`
+
+Transcribe audio using OpenAI Whisper API with timed segments.
+
+**⚠️ Requires:** `OPENAI_API_KEY` environment variable
+
+```typescript
+// Returns: full transcript + timed segments + subtitles
+transcribe_audio({
+  videoPath: "/path/to/video.mp4",
+  subtitleFormat: "vtt",  // vtt, srt, or none
+  startTime: 0,           // optional segment
+  endTime: 60,
+  language: "en"          // improves accuracy
+})
+```
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | For transcription | Your OpenAI API key for Whisper transcription |
+
+**Example:**
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
 ## 💡 Usage Examples
 
 ### Recommended: Progressive Analysis
@@ -221,6 +357,46 @@ AI uses tools progressively:
 5. extract_audio → Get audio for transcription
 
 Result: Comprehensive analysis with ~30K tokens instead of 150K+
+```
+
+### 🆕 Smart Scene Detection
+
+```
+User: "What are the main scenes in this video?"
+
+AI uses scene detection:
+1. detect_scenes → Find 8 scene changes with timestamps
+2. get_scene_frames → Extract frames at scene boundaries
+
+Result: Captures actual content changes, not arbitrary intervals
+```
+
+### 🆕 Streaming Analysis (Long Videos)
+
+```
+User: "Watch through this 1-hour presentation"
+
+AI uses streaming:
+1. stream_start → Initialize and see first 30 seconds
+2. stream_next → Advance to 0:30-1:00
+3. stream_next → Continue to 1:00-1:30
+... continues until video ends
+
+Result: Progressive understanding with maintained context state
+```
+
+### 🆕 Chunk-Based Analysis
+
+```
+User: "Analyze this video section by section"
+
+AI uses chunks:
+1. get_video_chunks → See video has 10 chunks of 30s each
+2. analyze_chunk(0) → Analyze first chunk with audio
+3. analyze_chunk(1) → Continue with second chunk
+...
+
+Result: Systematic coverage with audio support
 ```
 
 ### Quick Metadata Check
@@ -248,6 +424,18 @@ AI: get_frames_batch([key_timestamps]) → Only important moments
 | `get_video_overview` | ~200 tokens | Always first |
 | `get_video_metadata` | ~100 tokens | Quick specs |
 | `estimate_analysis_cost` | ~150 tokens | Planning |
+| `get_frame` | ~10K tokens | Single frame |
+| `get_frames_batch` | ~25-75K tokens | Multiple frames (max 5) |
+| `extract_audio` | ~50 tokens | Audio extraction |
+| `detect_scenes` | ~200 tokens | Find scene changes |
+| `get_scene_frames` | ~10-50K tokens | Frames at scene changes |
+| `get_video_chunks` | ~150 tokens | Plan chunk analysis |
+| `analyze_chunk` | ~15-25K tokens | Single chunk + audio |
+| `stream_start` | ~15K tokens | Begin streaming |
+| `stream_next` | ~15K tokens | Continue streaming |
+| `stream_status` | ~100 tokens | Check progress |
+| `transcribe_audio` | ~100+ tokens | Whisper transcription* |
+| `analyze_video_full` | ~50-150K+ tokens | Full analysis (avoid) |
 | `get_frame` | 5K-15K tokens | Progressive fetching |
 | `get_frames_batch` (5) | 25K-75K tokens | Multiple specific frames |
 | `analyze_video_full` | 50K-150K+ tokens | Full analysis (rare) |

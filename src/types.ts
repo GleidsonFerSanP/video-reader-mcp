@@ -260,6 +260,8 @@ export interface SceneInfo {
   duration: number;
   /** Representative frame for this scene */
   keyFrameTimestamp: number;
+  /** Scene change confidence (0-1) */
+  confidence?: number;
 }
 
 /**
@@ -269,4 +271,184 @@ export interface VideoChapter {
   title: string;
   startTime: number;
   endTime: number;
+}
+
+// ============================================================================
+// SCENE DETECTION - Smart frame extraction
+// ============================================================================
+
+export interface SceneDetectionResult {
+  /** Detected scenes */
+  scenes: SceneInfo[];
+  /** Total scenes found */
+  totalScenes: number;
+  /** Detection threshold used */
+  threshold: number;
+  /** Recommended keyframes to fetch */
+  suggestedKeyframes: FrameReference[];
+  /** Context hints */
+  contextHints: ContextHint[];
+}
+
+export interface SceneDetectionOptions {
+  /** Sensitivity threshold (0.0-1.0, lower = more scenes). Default: 0.3 */
+  threshold?: number;
+  /** Maximum scenes to detect. Default: 20 */
+  maxScenes?: number;
+  /** Minimum scene duration in seconds. Default: 1 */
+  minSceneDuration?: number;
+}
+
+// ============================================================================
+// CHUNK ANALYSIS - Progressive video understanding
+// ============================================================================
+
+export interface VideoChunk {
+  /** Chunk index */
+  index: number;
+  /** Start time in seconds */
+  startTime: number;
+  /** End time in seconds */
+  endTime: number;
+  /** Duration in seconds */
+  duration: number;
+  /** Formatted time range "0:00-0:30" */
+  timeRange: string;
+  /** Whether this chunk has been analyzed */
+  analyzed: boolean;
+  /** Key frame for this chunk */
+  keyFrameTimestamp: number;
+}
+
+export interface ChunkAnalysisResult {
+  /** Current chunk being analyzed */
+  chunk: VideoChunk;
+  /** Frame data for this chunk */
+  frame: FrameData;
+  /** Audio segment path if extracted */
+  audioSegmentPath?: string;
+  /** Progress info */
+  progress: {
+    currentChunk: number;
+    totalChunks: number;
+    percentComplete: number;
+  };
+  /** Accumulated context from previous chunks */
+  previousContext?: string[];
+  /** Hints for next steps */
+  contextHints: ContextHint[];
+}
+
+export interface ChunkOptions {
+  /** Duration of each chunk in seconds. Default: 30 */
+  chunkDuration?: number;
+  /** Include audio for each chunk */
+  includeAudio?: boolean;
+  /** Max width for frames. Default: 1920 */
+  maxWidth?: number;
+}
+
+// ============================================================================
+// AUDIO TRANSCRIPTION - Speech to text
+// ============================================================================
+
+export interface TranscriptionSegment {
+  /** Segment index */
+  index: number;
+  /** Start time in seconds */
+  startTime: number;
+  /** End time in seconds */
+  endTime: number;
+  /** Transcribed text */
+  text: string;
+  /** Speaker label if diarization enabled */
+  speaker?: string;
+  /** Confidence score 0-1 */
+  confidence?: number;
+}
+
+export interface TranscriptionResult {
+  /** Full transcription text */
+  fullText: string;
+  /** Segmented transcription with timestamps */
+  segments: TranscriptionSegment[];
+  /** Language detected */
+  language?: string;
+  /** Duration of audio transcribed */
+  audioDuration: number;
+  /** Path to VTT/SRT subtitle file */
+  subtitlePath?: string;
+  /** Estimated tokens for full transcript */
+  estimatedTokens: number;
+  /** Context hints */
+  contextHints: ContextHint[];
+}
+
+export interface TranscriptionOptions {
+  /** Language code (e.g., 'en', 'pt', 'es'). Auto-detect if omitted */
+  language?: string;
+  /** Output subtitle format */
+  subtitleFormat?: 'vtt' | 'srt' | 'none';
+  /** Time segment to transcribe */
+  startTime?: number;
+  endTime?: number;
+  /** Enable speaker diarization */
+  diarization?: boolean;
+  /** Use Whisper model size: tiny, base, small, medium, large */
+  model?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
+}
+
+// ============================================================================
+// STREAM ANALYSIS - Progressive video watching simulation
+// ============================================================================
+
+export interface StreamAnalysisState {
+  /** Video being analyzed */
+  videoPath: string;
+  /** Current position in seconds */
+  currentPosition: number;
+  /** Total duration */
+  totalDuration: number;
+  /** Chunks analyzed so far */
+  analyzedChunks: number[];
+  /** Accumulated observations */
+  observations: string[];
+  /** Key events detected with timestamps */
+  keyEvents: Array<{
+    timestamp: number;
+    description: string;
+  }>;
+  /** Is analysis complete */
+  isComplete: boolean;
+}
+
+export interface StreamAnalysisStep {
+  /** Current frame */
+  frame: FrameData;
+  /** Current position */
+  position: {
+    current: number;
+    total: number;
+    formatted: string;
+    percentComplete: number;
+  };
+  /** Audio transcript for this segment if available */
+  audioTranscript?: string;
+  /** Scenes in current segment */
+  scenesInSegment?: SceneInfo[];
+  /** Analysis state */
+  state: StreamAnalysisState;
+  /** What to do next */
+  contextHints: ContextHint[];
+}
+
+export interface StreamAnalysisOptions {
+  /** Seconds to advance per step. Default: 30 */
+  stepDuration?: number;
+  /** Include audio transcription per step */
+  includeAudio?: boolean;
+  /** Use scene detection for smart frame selection */
+  useSceneDetection?: boolean;
+  /** Starting position in seconds */
+  startPosition?: number;
 }

@@ -70,7 +70,7 @@ function build() {
 
   // Step 4: Create package.json for the bundled server
   log("Creating mcp-server package.json...");
-  
+
   const serverPackageJson = {
     name: "video-reader-mcp-server",
     version: "1.0.0",
@@ -97,13 +97,13 @@ function build() {
   log(
     "ℹ️  Installing binaries for current platform. For multi-platform builds, see TROUBLESHOOTING.md",
   );
-  
+
   try {
     execSync("npm install --omit=dev", {
       cwd: MCP_SERVER_DIR,
       stdio: "inherit",
     });
-    
+
     log("✅ Dependencies installed successfully!");
   } catch (e) {
     errorExit("Failed to install MCP server dependencies: " + e.message);
