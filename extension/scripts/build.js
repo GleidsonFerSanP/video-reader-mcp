@@ -81,6 +81,7 @@ function build() {
       "@ffmpeg-installer/ffmpeg": "^1.1.0",
       "@ffprobe-installer/ffprobe": "^2.1.2",
       "fluent-ffmpeg": "^2.1.3",
+      "openai": "^4.76.0",
       sharp: "^0.33.5",
     },
   };
